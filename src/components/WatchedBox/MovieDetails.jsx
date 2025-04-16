@@ -1,6 +1,7 @@
 import Loader from "../Loader";
 import StarRating from "../StarRating";
 import { useEffect, useState } from "react";
+import { useKey } from "./hook/useKey";
 
 const API_URL = `${import.meta.env.VITE_API_URL}${
   import.meta.env.VITE_API_KEY
@@ -50,17 +51,7 @@ const MovieDetails = ({
     };
   }, [movie?.Title]);
 
-  useEffect(() => {
-    const callBack = document.addEventListener("keydown", (e) => {
-      if (e.code === "Escape") {
-        handlecloseSelection();
-      }
-    });
-    return () => {
-      document.removeEventListener("keydown", callBack);
-    };
-  }, [handlecloseSelection]);
-
+  useKey(handlecloseSelection, "Escape");
   if (loading) return <Loader />;
 
   return (

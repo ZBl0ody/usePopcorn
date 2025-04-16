@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { tempMovieData, tempWatchedData } from "../public/tempMovieData";
 import NavBar from "./components/nav/NavBar";
 import Layout from "./components/Layout";
 import Box from "./components/Box";
@@ -11,18 +10,16 @@ import WatchedList from "./components/WatchedBox/WatchedList";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
 import MovieDetails from "./components/WatchedBox/MovieDetails";
+import { useMovies } from "./components/WatchedBox/hook/useMovies";
+import { useLocalStorage } from "./components/WatchedBox/hook/useLocalStorage";
 
-const API_URL = `${import.meta.env.VITE_API_URL}${
-  import.meta.env.VITE_API_KEY
-}`;
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("avatar");
-  const [loading, setLoading] = useState(false);
-  const [isError, setIsError] = useState("");
   const [selectedID, setSelectedID] = useState(null);
   const [rating, setRating] = useState(0);
+
+  const [loading, isError, movies] = useMovies(query);
+  const [watched, setWatched] = useLocalStorage([], "watched");
 
   function handleSelection(id) {
     if (id === selectedID) {
@@ -54,42 +51,6 @@ export default function App() {
   function handleRemoveWatched(id) {
     setWatched((watched) => watched.filter((m) => m.imdbID !== id));
   }
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function getMovies() {
-      try {
-        setLoading(true);
-        setIsError("");
-        const res = await fetch(`${API_URL}&s=${query}`, {
-          signal: controller.signal,
-        });
-        if (!res.ok) {
-          throw new Error("Something went wrong!");
-        }
-        const data = await res.json();
-        if (data.Response === "False") {
-          throw new Error(data.Error);
-        }
-        setMovies(data.Search);
-        setIsError("");
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        setIsError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (query.length < 3) {
-      setIsError("");
-      setMovies([]);
-      return;
-    }
-    getMovies();
-    return () => {
-      controller.abort();
-    };
-  }, [query]);
 
   return (
     <>
