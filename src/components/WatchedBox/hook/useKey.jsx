@@ -3,7 +3,7 @@ import { useEffect } from "react";
 export const useKey = (fn, key) => {
   useEffect(() => {
     const callBack = (e) => {
-      if (e.code === key) {
+      if (e.code.toLowerCase() === key.toLowerCase()) {
         fn();
       }
     };
@@ -11,7 +11,7 @@ export const useKey = (fn, key) => {
     return () => {
       document.removeEventListener("keydown", callBack);
     };
-  }, [fn]);
+  }, [fn, key]);
 
   return;
 };
